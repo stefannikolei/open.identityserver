@@ -8,8 +8,8 @@ using System;
 namespace Open.IdentityServer.EntityFramework.Entities;
 
 /// <summary>
-/// Class included for compatibility, and to be used in the future when support for Server Side Sessions is added to
-/// Open.IdentityServer
+/// Entity for server-side sessions. The schema is kept compatible with other IdentityServer
+/// implementations to ease migration.
 /// </summary>
 public class IdentityServerServerSideSessions
 {

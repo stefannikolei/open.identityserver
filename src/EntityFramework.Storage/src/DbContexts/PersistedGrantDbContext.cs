@@ -107,8 +107,6 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
         base.OnModelCreating(modelBuilder);
     }
     
-    //Schema compatibility, placeholders unused
-    
     /// <summary>
     /// Gets or sets the server side sessions.
     /// </summary>
@@ -116,7 +114,9 @@ public class PersistedGrantDbContext<TContext> : DbContext, IPersistedGrantDbCon
     /// The server side sessions.
     /// </value>
     public DbSet<IdentityServerServerSideSessions> ServerSideSessions { get; set; }
-    
+
+    //Schema compatibility, placeholders unused
+
     /// <summary>
     /// Gets or sets the pushed authorization requests.
     /// </summary>

@@ -102,6 +102,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
 
         builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
         builder.Services.AddTransient<IDeviceFlowStore, DeviceFlowStore>();
+        builder.Services.AddTransient<IServerSideSessionStore, ServerSideSessionStore>();
         builder.Services.AddSingleton<IHostedService, TokenCleanupHost>();
         
         builder.Services.AddScoped<IIdentityServerKeyStore, IdentityServerKeyStore>();

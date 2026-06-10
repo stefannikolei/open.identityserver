@@ -141,4 +141,9 @@ public class IdentityServerOptions
     /// Gets or sets the enable authorise response issuer param option
     /// </summary>
     public bool EnableAuthorizeResponseIssuerParam { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the server-side session options.
+    /// </summary>
+    public ServerSideSessionOptions ServerSideSessions { get; set; } = new ServerSideSessionOptions();
 }

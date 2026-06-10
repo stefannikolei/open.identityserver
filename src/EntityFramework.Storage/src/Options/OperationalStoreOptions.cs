@@ -51,8 +51,6 @@ public class OperationalStoreOptions: StoreOptions
     /// </value>
     public int TokenCleanupBatchSize { get; set; } = 100;
     
-    //Schema compatibility, placeholders unused
-    
     /// <summary>
     /// Gets or sets the keys table configuration.
     /// </summary>
@@ -68,6 +66,8 @@ public class OperationalStoreOptions: StoreOptions
     /// The server-side sessions' config.
     /// </value>
     public TableConfiguration ServerSideSessions { get; set; } = new("ServerSideSessions");
+
+    //Schema compatibility, placeholders unused
 
     /// <summary>
     /// Gets or sets the pushed authorization requests table configuration.

@@ -100,6 +100,7 @@ Open.IdentityServer enables the following features in your applications:
    topics/refresh_tokens
    topics/reference_tokens
    topics/persisted_grants
+   topics/server_side_sessions
    topics/resource_indicators
    topics/pop
    topics/mtls

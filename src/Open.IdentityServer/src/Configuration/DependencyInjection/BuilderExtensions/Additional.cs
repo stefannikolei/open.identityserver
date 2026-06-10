@@ -8,10 +8,15 @@ using Open.IdentityServer.Stores;
 using Open.IdentityServer.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
+using System.Linq;
 using System.Net.Http;
 using Open.IdentityServer;
 using Open.IdentityServer.Configuration;
+using Open.IdentityServer.Hosting;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -454,6 +459,64 @@ public static class IdentityServerBuilderExtensionsAdditional
         // This is added as scoped due to the note regarding the AuthenticateAsync
         // method in the Open.IdentityServer.Services.DefaultUserSession implementation.
         builder.Services.AddScoped<IUserSession, T>();
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds server-side sessions. The cookie authentication ticket is kept in the
+    /// server-side session store rather than in the cookie itself, which allows
+    /// sessions to be queried and revoked from the server.
+    /// If no <see cref="IServerSideSessionStore"/> has been registered, an in-memory
+    /// implementation is used, which is not suitable for multi-instance production deployments.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
+    public static IIdentityServerBuilder AddServerSideSessions(this IIdentityServerBuilder builder)
+    {
+        builder.Services.AddHttpContextAccessor();
+
+        builder.Services.TryAddSingleton<IServerSideSessionStore, InMemoryServerSideSessionStore>();
+        builder.Services.TryAddTransient<IServerSideTicketStore, ServerSideTicketStore>();
+        builder.Services.TryAddTransient<ISessionManagementService, DefaultSessionManagementService>();
+
+        if (!builder.Services.Any(x => x.ImplementationType == typeof(PostConfigureApplicationCookieTicketStore)))
+        {
+            builder.Services.AddSingleton<IPostConfigureOptions<CookieAuthenticationOptions>, PostConfigureApplicationCookieTicketStore>();
+        }
+
+        if (!builder.Services.Any(x => x.ServiceType == typeof(IHostedService) && x.ImplementationType == typeof(SessionCleanupHost)))
+        {
+            builder.Services.AddSingleton<IHostedService, SessionCleanupHost>();
+        }
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds server-side sessions with a custom session store.
+    /// </summary>
+    /// <typeparam name="T">The concrete <see cref="IServerSideSessionStore"/> implementation to register.</typeparam>
+    /// <param name="builder">The builder.</param>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
+    public static IIdentityServerBuilder AddServerSideSessions<T>(this IIdentityServerBuilder builder)
+        where T : class, IServerSideSessionStore
+    {
+        return builder
+            .AddServerSideSessionStore<T>()
+            .AddServerSideSessions();
+    }
+
+    /// <summary>
+    /// Adds a custom server-side session store.
+    /// </summary>
+    /// <typeparam name="T">The concrete <see cref="IServerSideSessionStore"/> implementation to register.</typeparam>
+    /// <param name="builder">The builder.</param>
+    /// <returns>The same <paramref name="builder"/> instance so that additional calls can be chained.</returns>
+    public static IIdentityServerBuilder AddServerSideSessionStore<T>(this IIdentityServerBuilder builder)
+        where T : class, IServerSideSessionStore
+    {
+        builder.Services.AddTransient<IServerSideSessionStore, T>();
 
         return builder;
     }
