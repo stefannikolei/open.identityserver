@@ -117,11 +117,11 @@ public class ServerSideTicketStore : IServerSideTicketStore
         var session = await _store.GetSessionAsync(key);
         if (session == null)
         {
-            // the cookie authentication handler can call renew for a key that no
-            // longer exists (e.g. it was just removed by the cleanup job while the
-            // request was in flight), so we re-create the session.
-            // see https://github.com/dotnet/aspnetcore/issues/41516
-            await CreateNewSessionAsync(key, ticket);
+            // The session was removed (expired by cleanup or forcibly terminated by an admin).
+            // Do not re-create it: re-creating with the same opaque key would resurrect a
+            // deliberately terminated session and bypass admin-forced logout.
+            // The user will be redirected to login on their next request.
+            _logger.LogDebug("Server-side session for key not found during renew; skipping update.");
             return;
         }
 

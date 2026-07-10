@@ -13,6 +13,7 @@ using Open.IdentityServer.EntityFramework.Options;
 using Open.IdentityServer.EntityFramework.Storage;
 using Open.IdentityServer.EntityFramework.Stores;
 using Open.IdentityServer.Stores;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -102,7 +103,7 @@ public static class IdentityServerEntityFrameworkBuilderExtensions
 
         builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
         builder.Services.AddTransient<IDeviceFlowStore, DeviceFlowStore>();
-        builder.Services.AddTransient<IServerSideSessionStore, ServerSideSessionStore>();
+        builder.Services.TryAddTransient<IServerSideSessionStore, ServerSideSessionStore>();
         builder.Services.AddSingleton<IHostedService, TokenCleanupHost>();
         
         builder.Services.AddScoped<IIdentityServerKeyStore, IdentityServerKeyStore>();

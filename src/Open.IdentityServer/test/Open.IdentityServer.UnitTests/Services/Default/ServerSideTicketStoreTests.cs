@@ -184,13 +184,13 @@ public class ServerSideTicketStoreTests
     }
 
     [Fact]
-    public async Task Renew_for_missing_session_should_recreate_session()
+    public async Task Renew_for_missing_session_should_not_recreate_session()
     {
+        // A missing session was either expired or forcibly terminated; re-creating it
+        // would bypass admin-forced logout, so RenewAsync is a no-op in this case.
         await _subject.RenewAsync("key1", CreateTicket(sub: "sub1"));
 
-        var session = await _sessionStore.GetSessionAsync("key1");
-        session.Should().NotBeNull();
-        session.SubjectId.Should().Be("sub1");
+        (await _sessionStore.GetSessionAsync("key1")).Should().BeNull();
     }
 
     [Fact]

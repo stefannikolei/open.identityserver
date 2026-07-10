@@ -54,7 +54,7 @@ public class SessionCleanupHost : IHostedService
 
             _source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-            Task.Factory.StartNew(() => StartInternalAsync(_source.Token));
+            _ = StartInternalAsync(_source.Token);
         }
 
         return Task.CompletedTask;

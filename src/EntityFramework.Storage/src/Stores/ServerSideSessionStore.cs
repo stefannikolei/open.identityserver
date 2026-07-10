@@ -64,7 +64,7 @@ public class ServerSideSessionStore : IServerSideSessionStore
 
         try
         {
-            await Context.SaveChangesAsync();
+            await Context.SaveChangesAsync(cancellationToken);
 
             Logger.LogDebug("Created server-side session for subject {subjectId} and session id {sessionId} in database", session.SubjectId, session.SessionId);
         }
@@ -80,10 +80,8 @@ public class ServerSideSessionStore : IServerSideSessionStore
     {
         if (key == null) throw new ArgumentNullException(nameof(key));
 
-        var entity = (await Context.ServerSideSessions.AsNoTracking()
-                .Where(x => x.Key == key)
-                .ToArrayAsync(cancellationToken))
-            .SingleOrDefault(x => x.Key == key);
+        var entity = await Context.ServerSideSessions.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Key == key, cancellationToken);
 
         Logger.LogDebug("Server-side session found in database: {found}", entity != null);
 
@@ -95,10 +93,8 @@ public class ServerSideSessionStore : IServerSideSessionStore
     {
         if (session == null) throw new ArgumentNullException(nameof(session));
 
-        var entity = (await Context.ServerSideSessions
-                .Where(x => x.Key == session.Key)
-                .ToArrayAsync(cancellationToken))
-            .SingleOrDefault(x => x.Key == session.Key);
+        var entity = await Context.ServerSideSessions
+            .FirstOrDefaultAsync(x => x.Key == session.Key, cancellationToken);
 
         if (entity == null)
         {
@@ -110,7 +106,7 @@ public class ServerSideSessionStore : IServerSideSessionStore
 
         try
         {
-            await Context.SaveChangesAsync();
+            await Context.SaveChangesAsync(cancellationToken);
 
             Logger.LogDebug("Updated server-side session for subject {subjectId} and session id {sessionId} in database", session.SubjectId, session.SessionId);
         }
@@ -125,10 +121,8 @@ public class ServerSideSessionStore : IServerSideSessionStore
     {
         if (key == null) throw new ArgumentNullException(nameof(key));
 
-        var entity = (await Context.ServerSideSessions
-                .Where(x => x.Key == key)
-                .ToArrayAsync(cancellationToken))
-            .SingleOrDefault(x => x.Key == key);
+        var entity = await Context.ServerSideSessions
+            .FirstOrDefaultAsync(x => x.Key == key, cancellationToken);
 
         if (entity == null)
         {
@@ -140,7 +134,7 @@ public class ServerSideSessionStore : IServerSideSessionStore
 
         try
         {
-            await Context.SaveChangesAsync();
+            await Context.SaveChangesAsync(cancellationToken);
 
             Logger.LogDebug("Deleted server-side session for subject {subjectId} and session id {sessionId} in database", entity.SubjectId, entity.SessionId);
         }
@@ -177,7 +171,7 @@ public class ServerSideSessionStore : IServerSideSessionStore
 
         try
         {
-            await Context.SaveChangesAsync();
+            await Context.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -205,7 +199,7 @@ public class ServerSideSessionStore : IServerSideSessionStore
 
         try
         {
-            await Context.SaveChangesAsync();
+            await Context.SaveChangesAsync(cancellationToken);
 
             Logger.LogDebug("Removed {count} expired server-side sessions from database", entities.Length);
         }
@@ -314,7 +308,8 @@ public class ServerSideSessionStore : IServerSideSessionStore
         }
         if (!String.IsNullOrWhiteSpace(filter.DisplayName))
         {
-            query = query.Where(x => x.DisplayName != null && x.DisplayName.Contains(filter.DisplayName));
+            var displayNameLower = filter.DisplayName.ToLower();
+            query = query.Where(x => x.DisplayName != null && x.DisplayName.ToLower().Contains(displayNameLower));
         }
 
         return query;
