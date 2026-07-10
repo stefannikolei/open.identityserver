@@ -72,6 +72,7 @@ public class SessionCleanupHost : IHostedService
             _logger.LogDebug("Stopping server-side session removal");
 
             _source.Cancel();
+            _source.Dispose();
             _source = null;
         }
 

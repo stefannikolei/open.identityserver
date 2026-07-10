@@ -187,6 +187,23 @@ public class DefaultSessionManagementServiceTests
     }
 
     [Fact]
+    public async Task RemoveSessions_with_empty_client_ids_should_not_revoke_any_tokens()
+    {
+        await CreateSessionAsync("sub1", "sid1", "client1");
+
+        await _grantStore.StoreAsync(new PersistedGrant { Key = "rt1", Type = "refresh_token", SubjectId = "sub1", SessionId = "sid1", ClientId = "client1" });
+
+        await _subject.RemoveSessionsAsync(new RemoveSessionsContext
+        {
+            SubjectId = "sub1",
+            ClientIds = Array.Empty<string>(),
+            SendBackchannelLogoutNotification = false
+        });
+
+        (await _grantStore.GetAsync("rt1")).Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task QuerySessions_should_return_sessions()
     {
         await CreateSessionAsync("sub1", "sid1");

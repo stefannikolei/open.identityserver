@@ -105,10 +105,13 @@ public class DefaultSessionManagementService : ISessionManagementService
         var clientIds = context.ClientIds?.ToArray();
 
         // the persisted grant filter supports a single client id, so iterate when
-        // specific clients are requested; null means all clients
-        var clientFilters = (clientIds == null || clientIds.Length == 0)
-            ? new string[] { null }
-            : clientIds;
+        // specific clients are requested; null means all clients, empty means none
+        if (clientIds != null && clientIds.Length == 0)
+        {
+            return;
+        }
+
+        var clientFilters = clientIds ?? new string[] { null };
 
         foreach (var clientId in clientFilters)
         {
